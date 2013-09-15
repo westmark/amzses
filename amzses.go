@@ -23,16 +23,33 @@ import (
 	"time"
 )
 
-const (
-	endpoint = "https://email.us-east-1.amazonaws.com"
-)
+type Configuration struct {
+	AccessKey string
+	SecretKey string
+	Endpoint  string
+}
 
-var accessKey, secretKey string
+var accessKey, secretKey, endpoint string
 
-func init() {
+func Setup(configuration ...*Configuration) {
 	config := jconfig.LoadConfig("/etc/aws.conf")
 	accessKey = config.GetString("aws_access_key")
 	secretKey = config.GetString("aws_secret_key")
+	endpoint = "https://email.us-east-1.amazonaws.com"
+
+	if len(configuration) > 0 {
+		if configuration[0].AccessKey != "" {
+			accessKey = configuration[0].AccessKey
+		}
+
+		if configuration[0].SecretKey != "" {
+			secretKey = configuration[0].SecretKey
+		}
+
+		if configuration[0].Endpoint != "" {
+			endpoint = configuration[0].Endpoint
+		}
+	}
 }
 
 func SendMail(from, to, subject, body string) (string, error) {
